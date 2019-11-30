@@ -51,7 +51,7 @@ def parse_args():
 
     # arguments for GAT
     args.add_argument("-b_gat", "--batch_size_gat", type=int,
-                      default=86835, help="Batch size for GAT")
+            default=1, help="Batch size for GAT")
     args.add_argument("-neg_s_gat", "--valid_invalid_ratio_gat", type=int,
                       default=2, help="Ratio of valid to invalid triples for GAT training")
     args.add_argument("-drop_GAT", "--drop_GAT", type=float, 
@@ -130,8 +130,8 @@ print("Initial entity dimensions {} , relation dimensions {}".format(
     entity_embeddings.size(), relation_embeddings.size()))
 # %%
 
-CUDA = torch.cuda.is_available()
-
+#CUDA = torch.cuda.is_available()
+CUDA = False
 
 def batch_gat_loss(gat_loss_func, train_indices, entity_embed, relation_embed):
     len_pos_triples = int(
@@ -156,7 +156,7 @@ def batch_gat_loss(gat_loss_func, train_indices, entity_embed, relation_embed):
     x = source_embeds + relation_embeds - tail_embeds
     neg_norm = torch.norm(x, p=1, dim=1)
 
-    y = -torch.ones(int(args.valid_invalid_ratio_gat) * len_pos_triples).cuda()
+    y = -torch.ones(int(args.valid_invalid_ratio_gat) * len_pos_triples)
 
     loss = gat_loss_func(pos_norm, neg_norm, y)
     return loss

@@ -6,8 +6,8 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 
-CUDA = torch.cuda.is_available()
-
+#CUDA = torch.cuda.is_available()
+CUDA = False
 
 class ConvKB(nn.Module):
     def __init__(self, input_dim, input_seq_len, in_channels, out_channels, drop_prob, alpha_leaky):

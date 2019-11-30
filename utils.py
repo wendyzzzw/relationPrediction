@@ -20,8 +20,8 @@ import time
 import pickle
 
 
-CUDA = torch.cuda.is_available()
-
+#CUDA = torch.cuda.is_available()
+CUDA = False
 
 def save_model(model, name, epoch, folder_name):
     print("Saving Model")

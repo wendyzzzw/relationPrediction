@@ -4,6 +4,7 @@ from collections import defaultdict
 import time
 import queue
 import random
+from tqdm import tqdm
 
 
 class Corpus:
@@ -13,8 +14,8 @@ class Corpus:
 
         # Converting to sparse tensor
         adj_indices = torch.LongTensor(
-            [train_data[1][0], train_data[1][1]])  # rows and columns
-        adj_values = torch.LongTensor(train_data[1][2])
+            [train_data[1][0], train_data[1][1]]).cpu()  # rows and columns
+        adj_values = torch.LongTensor(train_data[1][2]).cpu()
         self.train_adj_matrix = (adj_indices, adj_values)
 
         # adjacency matrix is needed for train_data only, as GAT is trained for
@@ -253,17 +254,20 @@ class Corpus:
         distance[source] = 0
         parent[source] = (-1, -1)
 
-        q = queue.Queue()
-        q.put((source, -1))
+        #q = queue.Queue()
+        q = []
+        q.append((source, -1))
 
-        while(not q.empty()):
-            top = q.get()
+        while(len(q) != 0):
+            top = q.pop(0)
             if top[0] in graph.keys():
                 for target in graph[top[0]].keys():
                     if(target in visit.keys()):
                         continue
                     else:
-                        q.put((target, graph[top[0]][target]))
+                        if distance[top[0]] > nbd_size:
+                            break
+                        q.append((target, graph[top[0]][target]))
 
                         distance[target] = distance[top[0]] + 1
 
@@ -301,7 +305,7 @@ class Corpus:
         neighbors = {}
         start_time = time.time()
         print("length of graph keys is ", len(self.graph.keys()))
-        for source in self.graph.keys():
+        for source in tqdm(self.graph.keys(), total=len(self.graph.keys()), desc="Find 2hops"):
             # st_time = time.time()
             temp_neighbors = self.bfs(self.graph, source, nbd_size)
             for distance in temp_neighbors.keys():
